@@ -1,4 +1,4 @@
-/* Javascript graphics utility library
+/** @preserve Javascript graphics utility library
  * Helper functions, WebGL classes, Mouse input, Colours and Gradients UI
  * Copyright (c) 2014, Owen Kaluza
  * Released into public domain:
@@ -174,7 +174,7 @@ function ajaxReadFile(filename, callback, nocache, progress)
         if (callback)
           callback("Error: " + http.status);    //Error callback
         else
-          print("Ajax Read File Error: returned status code " + http.status + " " + http.statusText);
+          OK.debug("Ajax Read File Error: returned status code " + http.status + " " + http.statusText);
       }
     }
   } 
@@ -231,7 +231,7 @@ function updateProgress(evt)
   //evt.total: total bytes set in header by server (for download) or from client (upload)
   if (evt.lengthComputable) {
     setProgress(evt.loaded / evt.total * 100);
-    debug(evt.loaded + " / " + evt.total);
+    OK.debug(evt.loaded + " / " + evt.total);
   }
 } 
 
@@ -253,14 +253,14 @@ function ajaxPost(url, params, callback, progress, headers)
     if (http.readyState == 4) {
       if (http.status == 200) {
         if (progress) setProgress(100);
-        debug("POST: " + url);
+        OK.debug("POST: " + url);
         if (callback)
           callback(http.responseText);
       } else {
         if (callback)
           callback("Error, status:" + http.status);    //Error callback
         else
-          print("Ajax Post Error: returned status code " + http.status + " " + http.statusText);
+          OK.debug("Ajax Post Error: returned status code " + http.status + " " + http.statusText);
       }
     }
   }

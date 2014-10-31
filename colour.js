@@ -143,7 +143,7 @@
           //Pre-blend with background unless in UI mode
           if (this.premultiply && !ui) {
             colour1 = this.background.blend(colour1);
-            colour2 = this.background.blend(colour1);
+            colour2 = this.background.blend(colour2);
           }
           context.fillStyle.addColorStop(0.0, colour1.html());
           context.fillStyle.addColorStop(1.0, colour2.html());
@@ -324,12 +324,12 @@
   }
 
   Colour.prototype.rgbaObj = function() {
-  //print('R:' + this.red + ' G:' + this.green + ' B:' + this.blue + ' A:' + this.alpha);
+  //OK.debug('R:' + this.red + ' G:' + this.green + ' B:' + this.blue + ' A:' + this.alpha);
     return({'R':this.red, 'G':this.green, 'B':this.blue, 'A':this.alpha});
   }
 
   Colour.prototype.print = function() {
-    print(this.printString(true));
+    OK.debug(this.printString(true));
   }
 
   Colour.prototype.printString = function(alpha) {

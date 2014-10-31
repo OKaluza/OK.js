@@ -296,7 +296,7 @@
 
     //Passes other events on as simulated mouse events
     if (simulate) {
-      //print(event.type + " - " + event.touches.length + " touches");
+      //OK.debug(event.type + " - " + event.touches.length + " touches");
 
       //initMouseEvent(type, canBubble, cancelable, view, clickCount, 
       //           screenX, screenY, clientX, clientY, ctrlKey, 

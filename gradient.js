@@ -45,8 +45,8 @@ GradientEditor.prototype.update = function(nocallback) {
 
 //Draw gradient to passed canvas if data has changed
 //If no changes, return false
-GradientEditor.prototype.get = function(canvas) {
-  if (!this.changed) return false;
+GradientEditor.prototype.get = function(canvas, cache) {
+  if (cache && !this.changed) return false;
   this.changed = false;
   //Update passed canvas
   this.palette.draw(canvas, false);
@@ -98,6 +98,7 @@ GradientEditor.prototype.save = function(val) {
     var col = new Colour(0);
     col.setHSV(val);
     this.element.style.backgroundColor = col.html();
+    if (this.element.onchange) this.element.onchange();  //Call change function
   }
   this.reset();
   this.update();

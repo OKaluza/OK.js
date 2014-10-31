@@ -1,4 +1,4 @@
-/* Javascript graphics utility library
+/** @preserve Javascript graphics utility library
  * Helper functions, WebGL classes, Mouse input, Colours and Gradients UI
  * Copyright (c) 2014, Owen Kaluza
  * Released into public domain:
@@ -174,7 +174,7 @@ function ajaxReadFile(filename, callback, nocache, progress)
         if (callback)
           callback("Error: " + http.status);    //Error callback
         else
-          print("Ajax Read File Error: returned status code " + http.status + " " + http.statusText);
+          OK.debug("Ajax Read File Error: returned status code " + http.status + " " + http.statusText);
       }
     }
   } 
@@ -231,7 +231,7 @@ function updateProgress(evt)
   //evt.total: total bytes set in header by server (for download) or from client (upload)
   if (evt.lengthComputable) {
     setProgress(evt.loaded / evt.total * 100);
-    debug(evt.loaded + " / " + evt.total);
+    OK.debug(evt.loaded + " / " + evt.total);
   }
 } 
 
@@ -253,14 +253,14 @@ function ajaxPost(url, params, callback, progress, headers)
     if (http.readyState == 4) {
       if (http.status == 200) {
         if (progress) setProgress(100);
-        debug("POST: " + url);
+        OK.debug("POST: " + url);
         if (callback)
           callback(http.responseText);
       } else {
         if (callback)
           callback("Error, status:" + http.status);    //Error callback
         else
-          print("Ajax Post Error: returned status code " + http.status + " " + http.statusText);
+          OK.debug("Ajax Post Error: returned status code " + http.status + " " + http.statusText);
       }
     }
   }
@@ -581,7 +581,7 @@ function ajaxPost(url, params, callback, progress, headers)
 
     //Passes other events on as simulated mouse events
     if (simulate) {
-      //print(event.type + " - " + event.touches.length + " touches");
+      //OK.debug(event.type + " - " + event.touches.length + " touches");
 
       //initMouseEvent(type, canBubble, cancelable, view, clickCount, 
       //           screenX, screenY, clientX, clientY, ctrlKey, 
@@ -633,14 +633,11 @@ function ajaxPost(url, params, callback, progress, headers)
 
     if (!window.WebGLRenderingContext) throw "No browser WebGL support";
 
-    //Default context options
-    if (!options) options = { antialias: true, premultipliedAlpha: false};
-
     // Try to grab the standard context. If it fails, fallback to experimental.
     try {
       this.gl = canvas.getContext("webgl", options) || canvas.getContext("experimental-webgl", options);
     } catch (e) {
-      print("detectGL exception: " + e);
+      OK.debug("detectGL exception: " + e);
       throw "No context"
     }
     this.viewport = new Viewport(0, 0, canvas.width, canvas.height);
@@ -823,7 +820,11 @@ function ajaxPost(url, params, callback, progress, headers)
   }
 
   ViewMatrix.prototype.toString = function() {
-    return JSON.stringify(this.matrix);
+    return JSON.stringify(this.toArray());
+  }
+
+  ViewMatrix.prototype.toArray = function() {
+    return JSON.parse(mat4.str(this.matrix));
   }
 
   ViewMatrix.prototype.push = function(m) {
@@ -1009,7 +1010,7 @@ function ajaxPost(url, params, callback, progress, headers)
           //Pre-blend with background unless in UI mode
           if (this.premultiply && !ui) {
             colour1 = this.background.blend(colour1);
-            colour2 = this.background.blend(colour1);
+            colour2 = this.background.blend(colour2);
           }
           context.fillStyle.addColorStop(0.0, colour1.html());
           context.fillStyle.addColorStop(1.0, colour2.html());
@@ -1190,12 +1191,12 @@ function ajaxPost(url, params, callback, progress, headers)
   }
 
   Colour.prototype.rgbaObj = function() {
-  //print('R:' + this.red + ' G:' + this.green + ' B:' + this.blue + ' A:' + this.alpha);
+  //OK.debug('R:' + this.red + ' G:' + this.green + ' B:' + this.blue + ' A:' + this.alpha);
     return({'R':this.red, 'G':this.green, 'B':this.blue, 'A':this.alpha});
   }
 
   Colour.prototype.print = function() {
-    print(this.printString(true));
+    OK.debug(this.printString(true));
   }
 
   Colour.prototype.printString = function(alpha) {
@@ -1634,8 +1635,8 @@ GradientEditor.prototype.update = function(nocallback) {
 
 //Draw gradient to passed canvas if data has changed
 //If no changes, return false
-GradientEditor.prototype.get = function(canvas) {
-  if (!this.changed) return false;
+GradientEditor.prototype.get = function(canvas, cache) {
+  if (cache && !this.changed) return false;
   this.changed = false;
   //Update passed canvas
   this.palette.draw(canvas, false);
@@ -1687,6 +1688,7 @@ GradientEditor.prototype.save = function(val) {
     var col = new Colour(0);
     col.setHSV(val);
     this.element.style.backgroundColor = col.html();
+    if (this.element.onchange) this.element.onchange();  //Call change function
   }
   this.reset();
   this.update();

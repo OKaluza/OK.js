@@ -28,14 +28,11 @@
 
     if (!window.WebGLRenderingContext) throw "No browser WebGL support";
 
-    //Default context options
-    if (!options) options = { antialias: true, premultipliedAlpha: false};
-
     // Try to grab the standard context. If it fails, fallback to experimental.
     try {
       this.gl = canvas.getContext("webgl", options) || canvas.getContext("experimental-webgl", options);
     } catch (e) {
-      print("detectGL exception: " + e);
+      OK.debug("detectGL exception: " + e);
       throw "No context"
     }
     this.viewport = new Viewport(0, 0, canvas.width, canvas.height);
@@ -218,7 +215,11 @@
   }
 
   ViewMatrix.prototype.toString = function() {
-    return JSON.stringify(this.matrix);
+    return JSON.stringify(this.toArray());
+  }
+
+  ViewMatrix.prototype.toArray = function() {
+    return JSON.parse(mat4.str(this.matrix));
   }
 
   ViewMatrix.prototype.push = function(m) {
