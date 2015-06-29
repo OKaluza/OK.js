@@ -1130,6 +1130,10 @@ function ajaxPost(url, params, callback, progress, headers)
         this.red = colour[0];
         this.green = colour[1];
         this.blue = colour[2];
+        //Convert float components to [0-255]
+        if (this.red <= 1.0) this.red = Math.round(this.red * 255);
+        if (this.green <= 1.0) this.green = Math.round(this.green * 255);
+        if (this.blue <= 1.0) this.blue = Math.round(this.blue * 255);
         this.alpha = typeof colour[3] == "undefined" ? 1.0 : colour[3];
       }
     } else {
@@ -1222,8 +1226,13 @@ function ajaxPost(url, params, callback, progress, headers)
   };
 
   Colour.prototype.hex = function(o) { 
-    //ARGB integer hex
-    return(this.HEX(this.alpha*255) + this.HEX(this.red) + this.HEX(this.green) + this.HEX(this.blue)); 
+    //hex RGBA in expected order
+    return(this.HEX(this.red) + this.HEX(this.green) + this.HEX(this.blue) + this.HEX(this.alpha*255)); 
+  };
+
+  Colour.prototype.hexGL = function(o) { 
+    //RGBA for openGL (stored ABGR internally on little endian)
+    return(this.HEX(this.alpha*255) + this.HEX(this.blue) + this.HEX(this.green) + this.HEX(this.red)); 
   };
 
   Colour.prototype.setHSV = function(o)
