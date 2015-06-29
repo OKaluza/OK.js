@@ -187,14 +187,14 @@
   }
 
   //Setup and load uniforms
-  WebGLProgram.prototype.setup = function(attributes, uniforms) {
+  WebGLProgram.prototype.setup = function(attributes, uniforms, noenable) {
     if (!this.program) return;
     if (attributes == undefined) attributes = ["aVertexPosition", "aTextureCoord"];
     this.attributes = {};
     var i;
     for (i in attributes) {
       this.attributes[attributes[i]] = this.gl.getAttribLocation(this.program, attributes[i]);
-      this.gl.enableVertexAttribArray(this.attributes[attributes[i]]);
+      if (!noenable) this.gl.enableVertexAttribArray(this.attributes[attributes[i]]);
     }
 
     this.uniforms = {};
