@@ -792,14 +792,14 @@ function ajaxPost(url, params, callback, progress, headers)
   }
 
   //Setup and load uniforms
-  WebGLProgram.prototype.setup = function(attributes, uniforms) {
+  WebGLProgram.prototype.setup = function(attributes, uniforms, noenable) {
     if (!this.program) return;
     if (attributes == undefined) attributes = ["aVertexPosition", "aTextureCoord"];
     this.attributes = {};
     var i;
     for (i in attributes) {
       this.attributes[attributes[i]] = this.gl.getAttribLocation(this.program, attributes[i]);
-      this.gl.enableVertexAttribArray(this.attributes[attributes[i]]);
+      if (!noenable) this.gl.enableVertexAttribArray(this.attributes[attributes[i]]);
     }
 
     this.uniforms = {};
@@ -966,6 +966,15 @@ function ajaxPost(url, params, callback, progress, headers)
     for (var i = 0; i < this.colours.length; i++)
       paletteData += '\n' + this.colours[i].position.toFixed(6) + '=' + this.colours[i].colour.html();
     return paletteData;
+  }
+
+  Palette.prototype.toJSON = function() {
+    var obj = {};
+    obj.background = this.background.html();
+    obj.colours = [];
+    for (var i = 0; i < this.colours.length; i++)
+      obj.colours.push({'position' : this.colours[i].position, 'colour' : this.colours[i].colour.html()});
+    return JSON.stringify(obj);
   }
 
   //Palette draw to canvas
@@ -1172,7 +1181,7 @@ function ajaxPost(url, params, callback, progress, headers)
   Colour.prototype.toString = function() {return this.html();}
 
   Colour.prototype.html = function() {
-    return "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.alpha + ")";
+    return "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.alpha.toFixed(2) + ")";
   }
 
   Colour.prototype.rgbaGL = function() {
@@ -1213,7 +1222,9 @@ function ajaxPost(url, params, callback, progress, headers)
   };
 
   Colour.prototype.hex = function(o) { 
-    return(this.HEX(this.red) + this.HEX(this.green) + this.HEX(this.blue) + this.HEX(this.alpha*255)); 
+    //return(this.HEX(this.red) + this.HEX(this.green) + this.HEX(this.blue) + this.HEX(this.alpha*255)); 
+    //ABGR integer hex
+    return(this.HEX(this.alpha*255) + this.HEX(this.blue) + this.HEX(this.green) + this.HEX(this.red)); 
   };
 
   Colour.prototype.setHSV = function(o)
