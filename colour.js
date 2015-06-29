@@ -101,6 +101,15 @@
     return paletteData;
   }
 
+  Palette.prototype.toJSON = function() {
+    var obj = {};
+    obj.background = this.background.html();
+    obj.colours = [];
+    for (var i = 0; i < this.colours.length; i++)
+      obj.colours.push({'position' : this.colours[i].position, 'colour' : this.colours[i].colour.html()});
+    return JSON.stringify(obj);
+  }
+
   //Palette draw to canvas
   Palette.prototype.draw = function(canvas, ui) {
     //Slider image not yet loaded?
@@ -305,7 +314,7 @@
   Colour.prototype.toString = function() {return this.html();}
 
   Colour.prototype.html = function() {
-    return "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.alpha + ")";
+    return "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.alpha.toFixed(2) + ")";
   }
 
   Colour.prototype.rgbaGL = function() {
@@ -346,7 +355,9 @@
   };
 
   Colour.prototype.hex = function(o) { 
-    return(this.HEX(this.red) + this.HEX(this.green) + this.HEX(this.blue) + this.HEX(this.alpha*255)); 
+    //return(this.HEX(this.red) + this.HEX(this.green) + this.HEX(this.blue) + this.HEX(this.alpha*255)); 
+    //ABGR integer hex
+    return(this.HEX(this.alpha*255) + this.HEX(this.blue) + this.HEX(this.green) + this.HEX(this.red)); 
   };
 
   Colour.prototype.setHSV = function(o)
