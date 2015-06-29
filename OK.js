@@ -1222,9 +1222,8 @@ function ajaxPost(url, params, callback, progress, headers)
   };
 
   Colour.prototype.hex = function(o) { 
-    //return(this.HEX(this.red) + this.HEX(this.green) + this.HEX(this.blue) + this.HEX(this.alpha*255)); 
-    //ABGR integer hex
-    return(this.HEX(this.alpha*255) + this.HEX(this.blue) + this.HEX(this.green) + this.HEX(this.red)); 
+    //ARGB integer hex
+    return(this.HEX(this.alpha*255) + this.HEX(this.red) + this.HEX(this.green) + this.HEX(this.blue)); 
   };
 
   Colour.prototype.setHSV = function(o)
