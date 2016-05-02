@@ -144,7 +144,7 @@ function isEmpty(o) {
 
 //AJAX
 //Reads a file from server, responds when done with file data + passed name to callback function
-function ajaxReadFile(filename, callback, nocache, progress)
+function ajaxReadFile(filename, callback, nocache, progress, headers)
 { 
   var http = new XMLHttpRequest();
   var total = 0;
@@ -172,7 +172,7 @@ function ajaxReadFile(filename, callback, nocache, progress)
           callback(http.responseText, filename);
       } else {
         if (callback)
-          callback("Error: " + http.status);    //Error callback
+          callback("Error: " + http.status + " : " + filename);    //Error callback
         else
           OK.debug("Ajax Read File Error: returned status code " + http.status + " " + http.statusText);
       }
@@ -187,6 +187,11 @@ function ajaxReadFile(filename, callback, nocache, progress)
   }
   else
     http.open("GET", filename, true); 
+
+  //Custom headers
+  for (var key in headers)
+    http.setRequestHeader(key, headers[key]);
+
   http.send(null); 
 }
 
