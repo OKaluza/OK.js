@@ -29,7 +29,6 @@
 
         //Palette: parse into attrib=value pairs
         var pair = line.split("=");
-        console.log((typeof pair) + " : " + JSON.stringify(pair));
         if (pair[0] == "Background")
           this.background = new Colour(pair[1]);
         else if (pair[0][0] == "P") //Very old format: PositionX=
