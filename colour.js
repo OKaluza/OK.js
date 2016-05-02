@@ -17,27 +17,55 @@
       return;
     }
 
-    //Palette data parser
-    var lines = source.split("\n"); // split on newlines
-    var position;
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i].trim();
-      if (!line) continue;
+    var calcPositions = false;
 
-      //Palette: parse into attrib=value pairs
-      var pair = line.split("=");
-      if (pair[0] == "Background")
-        this.background = new Colour(pair[1]);
-      else if (pair[0][0] == "P") //PositionX=
-        position = parseFloat(pair[1]);
-      else if (pair[0][0] == "C") { //ColourX=
-        //Colour constructor handles html format colours, if no # or rgb/rgba assumes integer format
-        this.colours.push(new ColourPos(pair[1], position));
-        //Some old palettes had extra colours at end which screws things up so check end position
-        if (position == 1.0) break;
-      } else if (pair[0])
-        //New style: position=value
-        this.colours.push(new ColourPos(pair[1], pair[0]));
+    if (typeof(source) == 'string') {
+      //Palette string data parser
+      var lines = source.split(/[\n;]/); // split on newlines and/or semi-colons
+      var position;
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        if (!line) continue;
+
+        //Palette: parse into attrib=value pairs
+        var pair = line.split("=");
+        console.log((typeof pair) + " : " + JSON.stringify(pair));
+        if (pair[0] == "Background")
+          this.background = new Colour(pair[1]);
+        else if (pair[0][0] == "P") //Very old format: PositionX=
+          position = parseFloat(pair[1]);
+        else if (pair[0][0] == "C") { //Very old format: ColourX=
+          //Colour constructor handles html format colours, if no # or rgb/rgba assumes integer format
+          this.colours.push(new ColourPos(pair[1], position));
+          //Some old palettes had extra colours at end which screws things up so check end position
+          if (position == 1.0) break;
+        } else if (pair.length == 2) {
+          //New style: position=value
+          this.colours.push(new ColourPos(pair[1], pair[0]));
+        } else {
+          //Interpret as colour only, calculate positions
+          calcPositions = true;
+          this.colours.push(new ColourPos(line));
+        }
+      }
+    } else {
+      //JSON colour/position list data
+      for (var j=0; j<source.length; j++) {
+        //Calculate default positions if none provided
+        if (source[j].position == undefined)
+          calcPositions = true;
+        //Create the entry
+        this.colours.push(new ColourPos(source[j].colour, source[j].position));
+      }
+      //Use background if included
+      if (source.background)
+        this.background = new Colour(source.background);
+    }
+
+    //Calculate default positions
+    if (calcPositions) {
+      for (var j=0; j<this.colours.length; j++)
+        this.colours[j].position = j * (1.0 / (this.colours.length-1));
     }
 
     //Sort by position (fix out of order entries in old palettes)
@@ -101,13 +129,17 @@
     return paletteData;
   }
 
-  Palette.prototype.toJSON = function() {
+  Palette.prototype.get = function() {
     var obj = {};
     obj.background = this.background.html();
     obj.colours = [];
     for (var i = 0; i < this.colours.length; i++)
       obj.colours.push({'position' : this.colours[i].position, 'colour' : this.colours[i].colour.html()});
-    return JSON.stringify(obj);
+    return obj;
+  }
+
+  Palette.prototype.toJSON = function() {
+    return JSON.stringify(this.get());
   }
 
   //Palette draw to canvas
@@ -215,7 +247,10 @@
    */
   function ColourPos(colour, pos) {
     //Stores colour as rgba and position as real [0,1]
-    this.position = parseFloat(pos);
+    if (pos == undefined)
+      this.position = 0.0;
+    else
+      this.position = parseFloat(pos);
     //Detect out of range...
     if (this.position >= 0 && this.position <= 1) {
       if (colour) {
@@ -264,9 +299,13 @@
         this.green = colour[1];
         this.blue = colour[2];
         //Convert float components to [0-255]
-        if (this.red <= 1.0) this.red = Math.round(this.red * 255);
-        if (this.green <= 1.0) this.green = Math.round(this.green * 255);
-        if (this.blue <= 1.0) this.blue = Math.round(this.blue * 255);
+        //NOTE: This was commented, not sure where the problem was
+        //Needed for parsing JSON array [0,1] colours
+        if (this.red <= 1.0 && this.green <= 1.0 && this.blue <= 1.0) {
+          this.red = Math.round(this.red * 255);
+          this.green = Math.round(this.green * 255);
+          this.blue = Math.round(this.blue * 255);
+        }
         this.alpha = typeof colour[3] == "undefined" ? 1.0 : colour[3];
       }
     } else {
@@ -332,7 +371,7 @@
   }
 
   Colour.prototype.rgba = function() {
-    var rgba = [this.red, this.green, this.blue, this.alpha];
+    var rgba = [this.red/255.0, this.green/255.0, this.blue/255.0, this.alpha];
     return rgba;
   }
 
