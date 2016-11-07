@@ -54,14 +54,14 @@ function getImageDataURL(img) {
 //DOM
 
 //Shortcuts for element and style lookup
-if (!window.$) {
-  window.$ = function(v,o) { return((typeof(o)=='object'?o:document).getElementById(v)); }
+if (!window.ELEMENT) {
+  window.ELEMENT = function(v,o) { return((typeof(o)=='object'?o:document).getElementById(v)); }
 }
-if (!window.$S) {
-  window.$S = function(o)  { o = $(o); if(o) return(o.style); }
+if (!window.STYLE) {
+  window.STYLE = function(o)  { o = document.getElementById(o); if(o) return(o.style); }
 }
 if (!window.toggle) {
-  window.toggle = function(v) { var d = $S(v).display; if (d == 'none' || !d) $S(v).display='block'; else $S(v).display='none'; }
+  window.toggle = function(v) { var d = document.getElementById(v).style.display; if (d == 'none' || !d) document.getElementById(v).style.display='block'; else document.getElementById(v).style.display='none'; }
 }
 
 //Set display style of all elements of classname
@@ -243,8 +243,8 @@ function updateProgress(evt)
 function setProgress(percentage)
 {
   var val = Math.round(percentage);
-  $S('progressbar').width = (3 * val) + "px";
-  $('progressstatus').innerHTML = val + "%";
+  document.getElementById('progressbar').style.width = (3 * val) + "px";
+  document.getElementById('progressstatus').innerHTML = val + "%";
 } 
 
 //Posts request to server, responds when done with response data to callback function
@@ -1382,7 +1382,7 @@ function ajaxPost(url, params, callback, progress, headers)
 function MoveWindow(id) {
   //Mouse processing:
   if (!id) return;
-  this.element = $(id);
+  this.element = document.getElementById(id);
   if (!this.element) {alert("No such element: " + id); return null;}
   this.mouse = new Mouse(this.element, this);
   this.mouse.moveUpdate = true;
@@ -1469,7 +1469,7 @@ function ColourPicker(savefn, abortfn) {
   var sliderControl = 'top: 0px; left: -5px; background: url("' + slideimg + '"); height: 5px; width: 29px; position: absolute; ';
   var sliderBG = 'position: relative;';
 
-  this.element = createDiv("picker", null, "display:none; top: 58px; z-index: 20; background: #0d0d0d; color: #aaa; cursor: move; font-family: arial; font-size: 11px; padding: 7px 10px 11px 10px; position: fixed; width: 229px; border-radius: 5px; border: 1px solid #444;");
+  this.element = createDiv("picker", null, "display:none; top: 58px; z-index: 20; background: #0d0d0d; color: #aaa; cursor: move; font-family: arial; font-size: 11px; padding: 7px 10px 11px 10px; position: fixed; width: 248px; border-radius: 5px; border: 1px solid #444;");
   var bg = createDiv("pickCURBG", null, checked + " float: left; width: 12px; height: 12px; margin-right: 3px;");
     bg.appendChild(createDiv("pickCUR", null, "float: left; width: 12px; height: 12px; background: #fff; margin-right: 3px;"));
   this.element.appendChild(bg);
@@ -1518,7 +1518,7 @@ function ColourPicker(savefn, abortfn) {
     bgcol = new Colour({H:Math.round((360/this.size)*i), S:100, V:100, A:1.0});
     html += "<div class='hue' style='height: 1px; width: 19px; margin: 0; padding: 0; background: " + bgcol.htmlHex()+";'> <\/div>"; 
   }
-  $('Hmodel').innerHTML = html;
+  document.getElementById('Hmodel').innerHTML = html;
 
   //Load alpha strip
   html='';
@@ -1526,7 +1526,7 @@ function ColourPicker(savefn, abortfn) {
     opac=1.0-i/this.size;
     html += "<div class='opacity' style='height: 1px; width: 19px; margin: 0; padding: 0; background: #000;opacity: " + opac.toFixed(2) + ";'> <\/div>"; 
   }
-  $('Omodel').innerHTML = html;
+  document.getElementById('Omodel').innerHTML = html;
 
   //Save the class to element for re-use
   this.element.picker = this;
@@ -1599,8 +1599,8 @@ ColourPicker.prototype.wheel = function(e, mouse) {
 }
 
 ColourPicker.prototype.setSV = function(mouse) {
-  var X = mouse.clientx - parseInt($('SV').offsetLeft),
-      Y = mouse.clienty - parseInt($('SV').offsetTop);
+  var X = mouse.clientx - parseInt(document.getElementById('SV').offsetLeft),
+      Y = mouse.clienty - parseInt(document.getElementById('SV').offsetTop);
   //Saturation & brightness adjust
   this.picked.S = scale(X, this.size, 0, this.max['S']);
   this.picked.V = this.max['V'] - scale(Y, this.size, 0, this.max['V']);
@@ -1608,8 +1608,8 @@ ColourPicker.prototype.setSV = function(mouse) {
 }
 
 ColourPicker.prototype.setHue = function(mouse) {
-  var X = mouse.clientx - parseInt($('H').offsetLeft),
-      Y = mouse.clienty - parseInt($('H').offsetTop);
+  var X = mouse.clientx - parseInt(document.getElementById('H').offsetLeft),
+      Y = mouse.clienty - parseInt(document.getElementById('H').offsetTop);
   //Hue adjust
   this.picked.H = scale(Y, this.size, 0, this.max['H']);
   this.update(this.picked);
@@ -1623,8 +1623,8 @@ ColourPicker.prototype.incHue = function(inc) {
 }
 
 ColourPicker.prototype.setOpacity = function(mouse) {
-  var X = mouse.clientx - parseInt($('O').offsetLeft),
-      Y = mouse.clienty - parseInt($('O').offsetTop);
+  var X = mouse.clientx - parseInt(document.getElementById('O').offsetLeft),
+      Y = mouse.clienty - parseInt(document.getElementById('O').offsetTop);
   //Alpha adjust
   this.picked.A = 1.0 - clamp(Y / this.size, 0, 1);
   this.update(this.picked);
@@ -1644,18 +1644,18 @@ ColourPicker.prototype.update = function(HSV) {
       rgbaStr = this.colour.html(),
       bgcol = new Colour({H:HSV.H, S:100, V:100, A:255});
 
-  $('pickRGB').innerHTML=this.colour.printString();
-  $S('pickCUR').background=rgbaStr;
-  $S('pickCUR').backgroundColour=rgbaStr;
-  $S('SV').backgroundColor=bgcol.htmlHex();
+  document.getElementById('pickRGB').innerHTML=this.colour.printString();
+  document.getElementById('pickCUR').style.background=rgbaStr;
+  document.getElementById('pickCUR').style.backgroundColour=rgbaStr;
+  document.getElementById('SV').style.backgroundColor=bgcol.htmlHex();
 
   //Hue adjust
-  $S('Hslide').top = this.size * (HSV.H/360.0) - this.oh + 'px';
+  document.getElementById('Hslide').style.top = this.size * (HSV.H/360.0) - this.oh + 'px';
   //SV adjust
-  $S('SVslide').top = Math.round(this.size - this.size*(HSV.V/100.0) - this.sv) + 'px';
-  $S('SVslide').left = Math.round(this.size*(HSV.S/100.0) - this.sv) + 'px';
+  document.getElementById('SVslide').style.top = Math.round(this.size - this.size*(HSV.V/100.0) - this.sv) + 'px';
+  document.getElementById('SVslide').style.left = Math.round(this.size*(HSV.S/100.0) - this.sv) + 'px';
   //Alpha adjust
-  $S('Oslide').top = this.size * (1.0-HSV.A) - this.oh - 1 + 'px';
+  document.getElementById('Oslide').style.top = this.size * (1.0-HSV.A) - this.oh - 1 + 'px';
 };
 
 
