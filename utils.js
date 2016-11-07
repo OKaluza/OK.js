@@ -54,14 +54,14 @@ function getImageDataURL(img) {
 //DOM
 
 //Shortcuts for element and style lookup
-if (!window.$) {
-  window.$ = function(v,o) { return((typeof(o)=='object'?o:document).getElementById(v)); }
+if (!window.ELEMENT) {
+  window.ELEMENT = function(v,o) { return((typeof(o)=='object'?o:document).getElementById(v)); }
 }
-if (!window.$S) {
-  window.$S = function(o)  { o = $(o); if(o) return(o.style); }
+if (!window.STYLE) {
+  window.STYLE = function(o)  { o = document.getElementById(o); if(o) return(o.style); }
 }
 if (!window.toggle) {
-  window.toggle = function(v) { var d = $S(v).display; if (d == 'none' || !d) $S(v).display='block'; else $S(v).display='none'; }
+  window.toggle = function(v) { var d = document.getElementById(v).style.display; if (d == 'none' || !d) document.getElementById(v).style.display='block'; else document.getElementById(v).style.display='none'; }
 }
 
 //Set display style of all elements of classname
@@ -243,8 +243,8 @@ function updateProgress(evt)
 function setProgress(percentage)
 {
   var val = Math.round(percentage);
-  $S('progressbar').width = (3 * val) + "px";
-  $('progressstatus').innerHTML = val + "%";
+  document.getElementById('progressbar').style.width = (3 * val) + "px";
+  document.getElementById('progressstatus').innerHTML = val + "%";
 } 
 
 //Posts request to server, responds when done with response data to callback function
