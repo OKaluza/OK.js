@@ -107,15 +107,14 @@
     this.textureCoordBuffer.numItems = 4;
   }
 
-  WebGL.prototype.loadTexture = function(image, filter) {
+  WebGL.prototype.loadTexture = function(image, filter, type, flip) {
     if (filter == undefined) filter = this.gl.NEAREST;
+    if (type == undefined) type = this.gl.RGBA;
     this.texid = this.textures.length;
     this.textures.push(this.gl.createTexture());
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[this.texid]);
-    //this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
-    //(Ability to set texture type?)
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.LUMINANCE, this.gl.LUMINANCE, this.gl.UNSIGNED_BYTE, image);
-    //this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
+    if (flip) this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, type, type, this.gl.UNSIGNED_BYTE, image);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, filter);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, filter);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
