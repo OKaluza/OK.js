@@ -717,15 +717,14 @@ function ajaxPost(url, params, callback, progress, headers)
     this.textureCoordBuffer.numItems = 4;
   }
 
-  WebGL.prototype.loadTexture = function(image, filter) {
+  WebGL.prototype.loadTexture = function(image, filter, type, flip) {
     if (filter == undefined) filter = this.gl.NEAREST;
+    if (type == undefined) type = this.gl.RGBA;
     this.texid = this.textures.length;
     this.textures.push(this.gl.createTexture());
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[this.texid]);
-    //this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
-    //(Ability to set texture type?)
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.LUMINANCE, this.gl.LUMINANCE, this.gl.UNSIGNED_BYTE, image);
-    //this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
+    if (flip) this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, type, type, this.gl.UNSIGNED_BYTE, image);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, filter);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, filter);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
@@ -1441,6 +1440,15 @@ function ColourPicker(savefn, abortfn) {
   // http://www.dynamicdrive.com/dynamicindex11/colorjack/index.htm
   // (Stripped down, clean class based interface no IE6 support for HTML5 browsers only)
 
+  //Check for existing instance
+  var exists = document.getElementById('picker');
+  if (exists && exists.picker) {
+    alert("Returning existing!");
+    exists.picker.savefn = savefn;
+    exists.picker.abortfn = abortfn;
+    return exists.picker;
+  }
+
   function createDiv(id, inner, styles) {
     var div = document.createElement("div");
     div.id = id;
@@ -1520,6 +1528,9 @@ function ColourPicker(savefn, abortfn) {
     html += "<div class='opacity' style='height: 1px; width: 19px; margin: 0; padding: 0; background: #000;opacity: " + opac.toFixed(2) + ";'> <\/div>"; 
   }
   $('Omodel').innerHTML = html;
+
+  //Save the class to element for re-use
+  this.element.picker = this;
 }
 
 //Inherits from MoveWindow
@@ -1712,6 +1723,7 @@ GradientEditor.prototype.insert = function(position, x, y) {
   this.editing = this.palette.newColour(position, col)
   this.update();
   //Edit new colour
+  this.picker = new ColourPicker(this.save.bind(this), this.cancel.bind(this));
   this.picker.pick(col, x, y);
 }
 
@@ -1719,10 +1731,12 @@ GradientEditor.prototype.editBackground = function(element) {
   this.editing = -1;
   var offset = findElementPos(element); //From mouse.js
   this.element = element;
+  this.picker = new ColourPicker(this.save.bind(this), this.cancel.bind(this));
   this.picker.pick(this.palette.background, offset[0]+32, offset[1]+32);
 }
 
 GradientEditor.prototype.edit = function(val, x, y) {
+  this.picker = new ColourPicker(this.save.bind(this), this.cancel.bind(this));
   if (typeof(val) == 'number') {
     this.editing = val;
     this.picker.pick(this.palette.colours[val].colour, x, y);
