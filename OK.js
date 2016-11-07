@@ -1443,7 +1443,6 @@ function ColourPicker(savefn, abortfn) {
   //Check for existing instance
   var exists = document.getElementById('picker');
   if (exists && exists.picker) {
-    alert("Returning existing!");
     exists.picker.savefn = savefn;
     exists.picker.abortfn = abortfn;
     return exists.picker;
