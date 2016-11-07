@@ -60,6 +60,7 @@ GradientEditor.prototype.insert = function(position, x, y) {
   this.editing = this.palette.newColour(position, col)
   this.update();
   //Edit new colour
+  this.picker = new ColourPicker(this.save.bind(this), this.cancel.bind(this));
   this.picker.pick(col, x, y);
 }
 
@@ -67,10 +68,12 @@ GradientEditor.prototype.editBackground = function(element) {
   this.editing = -1;
   var offset = findElementPos(element); //From mouse.js
   this.element = element;
+  this.picker = new ColourPicker(this.save.bind(this), this.cancel.bind(this));
   this.picker.pick(this.palette.background, offset[0]+32, offset[1]+32);
 }
 
 GradientEditor.prototype.edit = function(val, x, y) {
+  this.picker = new ColourPicker(this.save.bind(this), this.cancel.bind(this));
   if (typeof(val) == 'number') {
     this.editing = val;
     this.picker.pick(this.palette.colours[val].colour, x, y);

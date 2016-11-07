@@ -67,6 +67,15 @@ function ColourPicker(savefn, abortfn) {
   // http://www.dynamicdrive.com/dynamicindex11/colorjack/index.htm
   // (Stripped down, clean class based interface no IE6 support for HTML5 browsers only)
 
+  //Check for existing instance
+  var exists = document.getElementById('picker');
+  if (exists && exists.picker) {
+    alert("Returning existing!");
+    exists.picker.savefn = savefn;
+    exists.picker.abortfn = abortfn;
+    return exists.picker;
+  }
+
   function createDiv(id, inner, styles) {
     var div = document.createElement("div");
     div.id = id;
@@ -146,6 +155,9 @@ function ColourPicker(savefn, abortfn) {
     html += "<div class='opacity' style='height: 1px; width: 19px; margin: 0; padding: 0; background: #000;opacity: " + opac.toFixed(2) + ";'> <\/div>"; 
   }
   $('Omodel').innerHTML = html;
+
+  //Save the class to element for re-use
+  this.element.picker = this;
 }
 
 //Inherits from MoveWindow
