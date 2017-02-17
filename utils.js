@@ -273,10 +273,8 @@ function ajaxPost(url, params, callback, progress, headers)
   http.open("POST", url, true); 
 
   //Send the proper header information along with the request
-  if (typeof(params) == 'string') {
+  if (typeof(params) == 'string')
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    http.setRequestHeader("Content-length", params.length);
-  }
 
   //Custom headers
   if (headers) {

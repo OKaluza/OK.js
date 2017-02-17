@@ -273,10 +273,8 @@ function ajaxPost(url, params, callback, progress, headers)
   http.open("POST", url, true); 
 
   //Send the proper header information along with the request
-  if (typeof(params) == 'string') {
+  if (typeof(params) == 'string')
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    http.setRequestHeader("Content-length", params.length);
-  }
 
   //Custom headers
   if (headers) {
@@ -1720,7 +1718,7 @@ GradientEditor.prototype.insert = function(position, x, y) {
   this.inserting = true;
   var col = new Colour();
   this.editing = this.palette.newColour(position, col)
-  this.update();
+  //this.update();
   //Edit new colour
   this.picker = new ColourPicker(this.save.bind(this), this.cancel.bind(this));
   this.picker.pick(col, x, y);

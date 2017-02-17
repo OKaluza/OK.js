@@ -58,7 +58,7 @@ GradientEditor.prototype.insert = function(position, x, y) {
   this.inserting = true;
   var col = new Colour();
   this.editing = this.palette.newColour(position, col)
-  this.update();
+  //this.update();
   //Edit new colour
   this.picker = new ColourPicker(this.save.bind(this), this.cancel.bind(this));
   this.picker.pick(col, x, y);
