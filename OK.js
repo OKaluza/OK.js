@@ -741,6 +741,52 @@ function ajaxPost(url, params, callback, progress, headers)
       this.gl.useProgram(this.program.program);
   }
 
+  WebGL.prototype.view = function(view) {
+    //Setup camera for viewing a model
+    //
+    //Passed view object requires following properties:
+    //
+    //fov, near_clip, far_clip
+    //translate, focus, centre, rotate, scale, orientation
+    
+    if (!this.gl) return;
+
+    this.gl.viewport(0, 0, this.gl.viewportWidth, this.gl.viewportHeight);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+
+    this.setPerspective(view.fov, this.gl.viewportWidth / this.gl.viewportHeight, view.near_clip, view.far_clip);
+
+    //Apply translation to origin, any rotation and scaling (inverse of zoom factor)
+    this.modelView.identity()
+    this.modelView.translate([view.translate[0], view.translate[1], view.translate[2]])
+    
+    // Adjust centre of rotation, default is same as focal point so view does nothing...
+    var adjust = [-(view.focus[0] - view.centre[0]), -(view.focus[1] - view.centre[1]), -(view.focus[2] - view.centre[2])];
+    this.modelView.translate(adjust);
+
+    // rotate model 
+    this.modelView.mult(quat4.toMat4(view.rotate));
+
+    // Apply scaling factors
+    this.modelView.scale(view.scale);
+
+    // Adjust back for rotation centre
+    this.modelView.translate([-adjust[0], -adjust[1], -adjust[2]]);
+
+    // Translate back by centre of model to align eye with model centre
+    this.modelView.translate([-view.focus[0], -view.focus[1], -view.focus[2] * view.orientation]);
+
+    //console.log(JSON.stringify(this.modelView));
+
+    // Set orientation scaling and default polygon front faces
+    if (view.orientation == 1.0) {
+      this.gl.frontFace(view.gl.CCW);
+    } else {
+      this.gl.frontFace(view.gl.CW);
+      this.modelView.scale([1, 1, -1]);
+    }
+  }
+
   /**
    * @constructor
    */
